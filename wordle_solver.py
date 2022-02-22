@@ -1,18 +1,22 @@
 from trie import Trie
 
-word_dict = open("cleaned_word_list.txt").readlines()
+word_dict = open("word_list.txt").readlines()
 trie = Trie()
+
+num_letters = input("How many letters is the wordl?: ")
+num_letters = int(num_letters) if num_letters else 5
 
 for word in word_dict:
     word = word.strip()
-    trie.insert(word)
+    if len(word) == num_letters:
+        trie.insert(word)
 
 
 banned_chars = ""
 while True:
     guess = input("Enter guess: ")
     if not guess:
-        guess = "....."
+        guess = "." * num_letters
     required_chars = input("Enter required chars: ")
     banned_chars += input("Enter banned characters: ").strip()
     potential_words = trie.search(guess)
