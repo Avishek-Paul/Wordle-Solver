@@ -11,6 +11,8 @@ for word in word_dict:
 banned_chars = ""
 while True:
     guess = input("Enter guess: ")
+    if not guess:
+        guess = "....."
     required_chars = input("Enter required chars: ")
     banned_chars += input("Enter banned characters: ").strip()
     potential_words = trie.search(guess)
