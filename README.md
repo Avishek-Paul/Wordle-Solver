@@ -2,7 +2,7 @@
 Helps solve wordle puzzles
 
 ```
-PS C:\Users\avish\Desktop\Chris Coding Demo\Wordle> python .\wordle_solver.py
+PS C:\Users\avish\Desktop\Coding Demo\Wordle> python .\wordle_solver.py
 Enter guess: .....
 Enter required chars: ane
 Enter banned characters: cr
