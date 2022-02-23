@@ -33,7 +33,8 @@ class Trie:
                     curr_word += char
                     curr = curr.children[char]
 
-            matching_words.append(curr_word)
+            if curr.isEnd:
+                matching_words.append(curr_word)
             return curr.isEnd
 
         dfs(self.root, word, "")
