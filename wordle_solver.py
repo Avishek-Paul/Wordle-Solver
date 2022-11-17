@@ -17,7 +17,9 @@ class WordleSolver:
         self.guess = self.set_guess()
 
     def get_options(self):
-        potential_words = self.trie.search(self.guess)
+        if not self.guess:
+            self.set_guess()
+        potential_words = self.trie.search("".join(self.guess))
         valid_words = []
         for word in potential_words:
             if not all(char in word for char in self.required_chars):
@@ -27,11 +29,12 @@ class WordleSolver:
             valid_words.append(word)
         return valid_words
 
-    def set_guess(self, guess=""):
+    def set_guess(self, guess=[]):
         if len(guess) == self.num_letters:
             self.guess = guess
         else:
-            self.guess = guess + ("." * (self.num_letters - len(guess)))
+            self.guess = guess + ["."] * (self.num_letters - len(guess))
+        print("setting guess", self.guess)
 
     def add_required_char(self, char):
         self.required_chars.add(char)
