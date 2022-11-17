@@ -109,8 +109,7 @@ def display_options(solver: WordleSolver):
 
 
 # Initialize the solver
-solver = WordleSolver(word_list=open("word_list.txt").readlines())
-
+solver = None
 # Create the window
 window = create_window()
 
@@ -123,6 +122,10 @@ while True:
         break
     elif event == "GUESS_BUTTON_CLICK":
         curr_guess = values.get("guess")
+        if not solver:
+            solver = WordleSolver(
+                word_list=open("word_list.txt").readlines(), num_letters=len(curr_guess)
+            )
         if curr_row < 6:
             new_guess(solver, curr_guess, curr_row)
             curr_row += 1
