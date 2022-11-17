@@ -22,7 +22,13 @@ def create_window():
         [
             sg.Column([], key="guess_display", vertical_alignment="top"),
             sg.VerticalSeparator(),
-            sg.Listbox(values=[], key="options_display", size=(10, 10), visible=False),
+            sg.Listbox(
+                values=[],
+                key="options_display",
+                size=(10, 10),
+                visible=False,
+                enable_events=True,
+            ),
         ],
         [sg.Button("Quit"), sg.Button("Reset")],
     ]
@@ -135,6 +141,10 @@ while True:
         print(
             "solver values: ", solver.required_chars, solver.banned_chars, solver.guess
         )
+    elif event == "options_display":
+        selected = values["options_display"][0]
+        window.Element("guess").update(selected)
+        window.Element("guess").set_focus()
     elif event == "Reset":
         window.close()
         window = create_window()
