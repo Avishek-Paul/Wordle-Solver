@@ -34,7 +34,6 @@ class WordleSolver:
             self.guess = guess
         else:
             self.guess = guess + ["."] * (self.num_letters - len(guess))
-        print("setting guess", self.guess)
 
     def add_required_char(self, char):
         self.required_chars.add(char)
