@@ -4,6 +4,21 @@ from wordle_solver import WordleSolver
 TITLE = "Wordle Solver"
 DEFAULT_WORD = "crate"
 IMPOSSIBLE_POSITIONS = {}
+DEFAULT_LAYOUT = [
+    [
+        sg.Text(
+            "Wordle Solver",
+        )
+    ],
+    [
+        sg.Input(key="guess", default_text=DEFAULT_WORD),
+        sg.Button("Guess", key="GUESS_BUTTON_CLICK"),
+    ],
+    [sg.HorizontalSeparator()],
+    [sg.Text("Guesses")],
+    [sg.Column([], key="guess_display")],
+    [sg.Button("Quit"), sg.Button("Reset")],
+]
 
 
 class Slot:
@@ -78,35 +93,19 @@ def display_options(solver: WordleSolver):
 
 # Initialize the solver
 solver = WordleSolver(word_list=open("word_list.txt").readlines())
-# solver.set_guess([*"salet"])
-
-layout = [
-    [
-        sg.Text(
-            "Wordle Solver",
-        )
-    ],
-    [
-        sg.Input(key="guess", default_text=DEFAULT_WORD),
-        sg.Button("Guess", key="GUESS_BUTTON_CLICK"),
-    ],
-    [sg.HorizontalSeparator()],
-    [sg.Text("Guesses")],
-    [sg.Column([], key="guess_display")],
-    [sg.Button("Quit")],
-]
 
 # Create the window
-window = sg.Window(TITLE, layout, keep_on_top=True)
+window = sg.Window(TITLE, DEFAULT_LAYOUT, keep_on_top=True)
+
 # Create an event loop
 curr_row = 0
 while True:
     event, values = window.read()
-    curr_guess = values.get("guess")
     if event == "Quit" or event == sg.WIN_CLOSED:
         window.close()
         break
     elif event == "GUESS_BUTTON_CLICK":
+        curr_guess = values.get("guess")
         if curr_row < 6:
             display_options(solver)
             new_guess(solver, curr_guess, curr_row)
@@ -126,3 +125,10 @@ while True:
         print(
             "solver values: ", solver.required_chars, solver.banned_chars, solver.guess
         )
+    elif event == "Reset":
+        # window.Element("guess_display").Widget.master.pack_forget()
+        window.Element("guess_display").hide_row()
+        solver.reset()
+        solver.set_guess()
+        curr_row = 0
+        IMPOSSIBLE_POSITIONS = {}
