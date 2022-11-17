@@ -15,7 +15,7 @@ def create_window():
         ],
         [
             sg.Input(key="guess", default_text=DEFAULT_WORD),
-            sg.Button("Guess", key="GUESS_BUTTON_CLICK"),
+            sg.Button("Guess", key="GUESS_BUTTON_CLICK", bind_return_key=True),
         ],
         [sg.HorizontalSeparator()],
         [sg.Text("Guesses")],
@@ -58,6 +58,8 @@ def new_guess(solver: WordleSolver, guess: str, row: int):
 
 
 def update_solver(solver: WordleSolver, position: int, letter: str, order_num: int):
+    if not solver.guess:
+        solver.set_guess()
     if position == 0:  # not in word
         solver.add_banned_char(letter)
         solver.remove_required_char(letter)
@@ -111,7 +113,6 @@ while True:
     elif event == "GUESS_BUTTON_CLICK":
         curr_guess = values.get("guess")
         if curr_row < 6:
-            display_options(solver)
             new_guess(solver, curr_guess, curr_row)
             curr_row += 1
     elif "letter" in event:
