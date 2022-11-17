@@ -19,7 +19,11 @@ def create_window():
         ],
         [sg.HorizontalSeparator()],
         [sg.Text("Guesses")],
-        [sg.Column([], key="guess_display")],
+        [
+            sg.Column([], key="guess_display", vertical_alignment="top"),
+            sg.VerticalSeparator(),
+            sg.Listbox(values=[], key="options_display", size=(10, 10), visible=False),
+        ],
         [sg.Button("Quit"), sg.Button("Reset")],
     ]
     return sg.Window(TITLE, layout, keep_on_top=True)
@@ -93,7 +97,8 @@ def display_options(solver: WordleSolver):
                 break
         if valid:
             valid_options.append(option)
-
+    window["options_display"].update(valid_options)
+    window["options_display"].update(visible=True)
     print("valid options: ", valid_options)
 
 
