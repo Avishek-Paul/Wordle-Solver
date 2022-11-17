@@ -3,6 +3,7 @@ from wordle_solver import WordleSolver
 
 TITLE = "Wordle Solver"
 DEFAULT_WORD = "crate"
+IMPOSSIBLE_POSITIONS = {}
 
 
 class Slot:
@@ -42,18 +43,37 @@ def update_solver(solver: WordleSolver, position: int, letter: str, order_num: i
         solver.add_banned_char(letter)
         solver.remove_required_char(letter)
         solver.guess[order_num] = "."
+        if letter in IMPOSSIBLE_POSITIONS and order_num in IMPOSSIBLE_POSITIONS[letter]:
+            IMPOSSIBLE_POSITIONS[letter].remove(order_num)
     elif position == 1:  # correct position
         solver.remove_banned_char(letter)
         solver.add_required_char(letter)
         solver.guess[order_num] = letter
+        if letter in IMPOSSIBLE_POSITIONS and order_num in IMPOSSIBLE_POSITIONS[letter]:
+            IMPOSSIBLE_POSITIONS[letter].remove(order_num)
     elif position == 2:  # in word, wrong position
         solver.remove_banned_char(letter)
         solver.add_required_char(letter)
         solver.guess[order_num] = "."
+        if letter not in IMPOSSIBLE_POSITIONS:
+            IMPOSSIBLE_POSITIONS[letter] = set()
+        IMPOSSIBLE_POSITIONS[letter].add(order_num)
 
 
 def display_options(solver: WordleSolver):
-    print("options: ", solver.get_options())
+    options = solver.get_options()
+    valid_options = []
+    for option in options:
+        # print(option)
+        valid = True
+        for idx, char in enumerate(option):
+            if char in IMPOSSIBLE_POSITIONS and idx in IMPOSSIBLE_POSITIONS[char]:
+                valid = False
+                break
+        if valid:
+            valid_options.append(option)
+
+    print("valid options: ", valid_options)
 
 
 # Initialize the solver
