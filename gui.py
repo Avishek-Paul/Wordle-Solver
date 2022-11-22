@@ -7,7 +7,7 @@ IMPOSSIBLE_POSITIONS = {}
 COLOR_MAP = {0: "black on gray", 1: "black on green", 2: "black on yellow"}
 
 
-def create_window():
+def create_window(location=(None, None)):
     layout = [
         [
             sg.Text(
@@ -34,7 +34,7 @@ def create_window():
         ],
         [sg.Button("Quit"), sg.Button("Reset")],
     ]
-    return sg.Window(TITLE, layout, keep_on_top=True)
+    return sg.Window(TITLE, layout, keep_on_top=True, location=location)
 
 
 class Slot:
@@ -175,9 +175,11 @@ while True:
             window.Element("guess").update(selected)
             window.Element("guess").set_focus()
     elif event == "Reset":
+        curr_loc = window.current_location(True)
         window.close()
-        window = create_window()
-        solver.reset()
-        solver.set_guess()
+        window = create_window(curr_loc)
+        if solver:
+            solver.reset()
+            solver.set_guess()
         curr_row = 0
         IMPOSSIBLE_POSITIONS = {}
