@@ -50,17 +50,25 @@ class Slot:
             self.position = 2  # change to yellow
         self.button_color = COLOR_MAP[self.position]
 
+    def set_position(self, position):
+        self.position = position
+        self.button_color = COLOR_MAP[self.position]
+
 
 def new_guess(solver: WordleSolver, guess: str, row: int):
     buttons = []
     for col, char in enumerate(guess):
-        solver.add_banned_char(char)
+        slot = Slot()
+        if char in CHARACTER_STATUS:
+            slot.set_position(CHARACTER_STATUS[char])
+        else:
+            solver.add_banned_char(char)
         buttons.append(
             sg.Button(
                 char,
                 key=f"letter_{row}_{col}",
-                metadata=Slot(),
-                button_color=("black on gray"),
+                metadata=slot,
+                button_color=slot.button_color,
                 size=5,
             )
         )
@@ -70,6 +78,7 @@ def new_guess(solver: WordleSolver, guess: str, row: int):
 def update_solver(solver: WordleSolver, position: int, letter: str, order_num: int):
     if not solver.guess:
         solver.set_guess()
+    CHARACTER_STATUS[letter] = position
     if position == 0:  # not in word
         solver.add_banned_char(letter)
         solver.remove_required_char(letter)
@@ -128,6 +137,7 @@ while True:
             )
         if curr_row < 6:
             new_guess(solver, curr_guess, curr_row)
+            display_options(solver)
             curr_row += 1
     elif "letter" in event:
         # get values
