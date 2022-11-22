@@ -87,6 +87,8 @@ def update_solver(solver: WordleSolver, position: int, letter: str, order_num: i
         solver.guess[order_num] = "."
         if letter in IMPOSSIBLE_POSITIONS and order_num in IMPOSSIBLE_POSITIONS[letter]:
             IMPOSSIBLE_POSITIONS[letter].remove(order_num)
+        elif letter in solver.guess:
+            IMPOSSIBLE_POSITIONS[letter].add(order_num)
     elif position == 1:  # correct position
         solver.remove_banned_char(letter)
         solver.add_required_char(letter)
