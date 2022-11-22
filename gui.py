@@ -4,7 +4,6 @@ from wordle_solver import WordleSolver
 TITLE = "Wordle Solver"
 DEFAULT_WORD = "crate"
 IMPOSSIBLE_POSITIONS = {}
-CHARACTER_STATUS = {}
 COLOR_MAP = {0: "black on gray", 1: "black on green", 2: "black on yellow"}
 
 
@@ -82,7 +81,6 @@ def new_guess(solver: WordleSolver, guess: str, row: int):
 def update_solver(solver: WordleSolver, position: int, letter: str, order_num: int):
     if not solver.guess:
         solver.set_guess()
-    CHARACTER_STATUS[letter] = position
     if position == 0:  # not in word
         solver.add_banned_char(letter)
         solver.remove_required_char(letter)

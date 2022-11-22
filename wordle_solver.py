@@ -43,7 +43,8 @@ class WordleSolver:
             self.required_chars.remove(char)
 
     def add_banned_char(self, char):
-        self.banned_chars.add(char)
+        if char not in self.required_chars or char not in self.guess:
+            self.banned_chars.add(char)
 
     def remove_banned_char(self, char):
         if char in self.banned_chars:
