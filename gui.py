@@ -1,9 +1,13 @@
+import requests
 import PySimpleGUI as sg
 from wordle_solver import WordleSolver
 
 TITLE = "Wordle Solver"
 DEFAULT_WORD = "crate"
 IMPOSSIBLE_POSITIONS = {}
+WORD_LIST = requests.get(
+    "https://raw.githubusercontent.com/Avishek-Paul/Wordle-Solver/master/word_list.txt"
+).text.split("\n")
 
 
 def create_window():
@@ -36,16 +40,19 @@ def create_window():
 
 
 class Slot:
-    button_color = "gray"
-    position = 0  # not in word
+    button_color = "white"
+    position = -1  # not in word
 
     def toggle(self):
-        if self.button_color == "yellow":
+        if self.button_color == "white":
+            self.button_color = "gray"
+            self.position = 0  # not in word
+        elif self.button_color == "yellow":
             self.button_color = "green"
             self.position = 1  # correct position
         elif self.button_color == "green":
-            self.button_color = "gray"
-            self.position = 0  # not in word
+            self.button_color = "white"
+            self.position = -1  # not set
         elif self.button_color == "gray":
             self.button_color = "yellow"
             self.position = 2  # in word, wrong position
@@ -60,7 +67,7 @@ def new_guess(solver: WordleSolver, guess: str, row: int):
                 char,
                 key=f"letter_{row}_{col}",
                 metadata=Slot(),
-                button_color=("black on gray"),
+                button_color=("black on white"),
                 size=5,
             )
         )
@@ -70,7 +77,11 @@ def new_guess(solver: WordleSolver, guess: str, row: int):
 def update_solver(solver: WordleSolver, position: int, letter: str, order_num: int):
     if not solver.guess:
         solver.set_guess()
-    if position == 0:  # not in word
+    if position == -1:  # position not set
+        solver.remove_required_char(letter)
+        solver.remove_banned_char(letter)
+        solver.guess[order_num] = "."
+    elif position == 0:  # not in word
         solver.add_banned_char(letter)
         solver.remove_required_char(letter)
         solver.guess[order_num] = "."
@@ -123,9 +134,7 @@ while True:
     elif event == "GUESS_BUTTON_CLICK":
         curr_guess = values.get("guess")
         if not solver:
-            solver = WordleSolver(
-                word_list=open("word_list.txt").readlines(), num_letters=len(curr_guess)
-            )
+            solver = WordleSolver(WORD_LIST, num_letters=len(curr_guess))
         if curr_row < 6:
             new_guess(solver, curr_guess, curr_row)
             curr_row += 1
