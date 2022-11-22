@@ -30,6 +30,7 @@ def create_window():
                 size=(10, 10),
                 visible=False,
                 enable_events=True,
+                bind_return_key=True,
             ),
         ],
         [sg.Button("Quit"), sg.Button("Reset")],
@@ -57,10 +58,13 @@ class Slot:
 
 def new_guess(solver: WordleSolver, guess: str, row: int):
     buttons = []
+    if not solver.guess:
+        solver.set_guess()
     for col, char in enumerate(guess):
         slot = Slot()
-        if char in CHARACTER_STATUS:
-            slot.set_position(CHARACTER_STATUS[char])
+        # set the button as green if it is already in the correct position
+        if solver.guess[col] == char:
+            slot.set_position(1)
         else:
             solver.add_banned_char(char)
         buttons.append(
@@ -155,9 +159,23 @@ while True:
             "solver values: ", solver.required_chars, solver.banned_chars, solver.guess
         )
     elif event == "options_display":
+        if len(values["options_display"]) <= 0:
+            continue
         selected = values["options_display"][0]
-        window.Element("guess").update(selected)
-        window.Element("guess").set_focus()
+        if values.get("guess") == selected:
+            curr_guess = values.get("guess")
+            if not solver:
+                solver = WordleSolver(
+                    word_list=open("word_list.txt").readlines(),
+                    num_letters=len(curr_guess),
+                )
+            if curr_row < 6:
+                new_guess(solver, curr_guess, curr_row)
+                display_options(solver)
+                curr_row += 1
+        else:
+            window.Element("guess").update(selected)
+            window.Element("guess").set_focus()
     elif event == "Reset":
         window.close()
         window = create_window()
