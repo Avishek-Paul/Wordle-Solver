@@ -4,6 +4,8 @@ from wordle_solver import WordleSolver
 TITLE = "Wordle Solver"
 DEFAULT_WORD = "crate"
 IMPOSSIBLE_POSITIONS = {}
+CHARACTER_STATUS = {}
+COLOR_MAP = {0: "black on gray", 1: "black on green", 2: "black on yellow"}
 
 
 def create_window():
@@ -36,19 +38,17 @@ def create_window():
 
 
 class Slot:
-    button_color = "gray"
     position = 0  # not in word
+    button_color = COLOR_MAP[position]
 
     def toggle(self):
-        if self.button_color == "yellow":
-            self.button_color = "green"
-            self.position = 1  # correct position
-        elif self.button_color == "green":
-            self.button_color = "gray"
-            self.position = 0  # not in word
-        elif self.button_color == "gray":
-            self.button_color = "yellow"
-            self.position = 2  # in word, wrong position
+        if self.position == 2:  # currently yellow
+            self.position = 1  # change to green
+        elif self.position == 1:  # currently green
+            self.position = 0  # change to green
+        elif self.position == 0:  # currently gray
+            self.position = 2  # change to yellow
+        self.button_color = COLOR_MAP[self.position]
 
 
 def new_guess(solver: WordleSolver, guess: str, row: int):
