@@ -1,3 +1,4 @@
+import requests
 import PySimpleGUI as sg
 from wordle_solver import WordleSolver
 
@@ -5,6 +6,9 @@ TITLE = "Wordle Solver"
 DEFAULT_WORD = "crate"
 IMPOSSIBLE_POSITIONS = {}
 COLOR_MAP = {0: "black on gray", 1: "black on green", 2: "black on yellow"}
+WORD_LIST = requests.get(
+    "https://raw.githubusercontent.com/Avishek-Paul/Wordle-Solver/master/word_list.txt"
+).text.split("\n")
 
 
 def create_window(location=(None, None)):
@@ -82,8 +86,8 @@ def update_solver(solver: WordleSolver, position: int, letter: str, order_num: i
     if not solver.guess:
         solver.set_guess()
     if position == 0:  # not in word
-        solver.add_banned_char(letter)
         solver.remove_required_char(letter)
+        solver.add_banned_char(letter)
         solver.guess[order_num] = "."
         if letter in IMPOSSIBLE_POSITIONS and order_num in IMPOSSIBLE_POSITIONS[letter]:
             IMPOSSIBLE_POSITIONS[letter].remove(order_num)
@@ -136,9 +140,7 @@ while True:
     elif event == "GUESS_BUTTON_CLICK":
         curr_guess = values.get("guess")
         if not solver:
-            solver = WordleSolver(
-                word_list=open("word_list.txt").readlines(), num_letters=len(curr_guess)
-            )
+            solver = WordleSolver(word_list=WORD_LIST, num_letters=len(curr_guess))
         if curr_row < 6:
             new_guess(solver, curr_guess, curr_row)
             display_options(solver)
@@ -166,7 +168,7 @@ while True:
             curr_guess = values.get("guess")
             if not solver:
                 solver = WordleSolver(
-                    word_list=open("word_list.txt").readlines(),
+                    word_list=WORD_LIST,
                     num_letters=len(curr_guess),
                 )
             if curr_row < 6:
