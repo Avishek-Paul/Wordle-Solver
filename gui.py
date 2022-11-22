@@ -4,6 +4,7 @@ from wordle_solver import WordleSolver
 TITLE = "Wordle Solver"
 DEFAULT_WORD = "crate"
 IMPOSSIBLE_POSITIONS = {}
+COLOR_MAP = {0: "black on gray", 1: "black on green", 2: "black on yellow"}
 
 
 def create_window():
@@ -28,6 +29,7 @@ def create_window():
                 size=(10, 10),
                 visible=False,
                 enable_events=True,
+                bind_return_key=True,
             ),
         ],
         [sg.Button("Quit"), sg.Button("Reset")],
@@ -36,31 +38,40 @@ def create_window():
 
 
 class Slot:
-    button_color = "gray"
     position = 0  # not in word
+    button_color = COLOR_MAP[position]
 
     def toggle(self):
-        if self.button_color == "yellow":
-            self.button_color = "green"
-            self.position = 1  # correct position
-        elif self.button_color == "green":
-            self.button_color = "gray"
-            self.position = 0  # not in word
-        elif self.button_color == "gray":
-            self.button_color = "yellow"
-            self.position = 2  # in word, wrong position
+        if self.position == 2:  # currently yellow
+            self.position = 1  # change to green
+        elif self.position == 1:  # currently green
+            self.position = 0  # change to green
+        elif self.position == 0:  # currently gray
+            self.position = 2  # change to yellow
+        self.button_color = COLOR_MAP[self.position]
+
+    def set_position(self, position):
+        self.position = position
+        self.button_color = COLOR_MAP[self.position]
 
 
 def new_guess(solver: WordleSolver, guess: str, row: int):
     buttons = []
+    if not solver.guess:
+        solver.set_guess()
     for col, char in enumerate(guess):
-        solver.add_banned_char(char)
+        slot = Slot()
+        # set the button as green if it is already in the correct position
+        if solver.guess[col] == char:
+            slot.set_position(1)
+        else:
+            solver.add_banned_char(char)
         buttons.append(
             sg.Button(
                 char,
                 key=f"letter_{row}_{col}",
-                metadata=Slot(),
-                button_color=("black on gray"),
+                metadata=slot,
+                button_color=slot.button_color,
                 size=5,
             )
         )
@@ -128,6 +139,7 @@ while True:
             )
         if curr_row < 6:
             new_guess(solver, curr_guess, curr_row)
+            display_options(solver)
             curr_row += 1
     elif "letter" in event:
         # get values
@@ -145,9 +157,23 @@ while True:
             "solver values: ", solver.required_chars, solver.banned_chars, solver.guess
         )
     elif event == "options_display":
+        if len(values["options_display"]) <= 0:
+            continue
         selected = values["options_display"][0]
-        window.Element("guess").update(selected)
-        window.Element("guess").set_focus()
+        if values.get("guess") == selected:
+            curr_guess = values.get("guess")
+            if not solver:
+                solver = WordleSolver(
+                    word_list=open("word_list.txt").readlines(),
+                    num_letters=len(curr_guess),
+                )
+            if curr_row < 6:
+                new_guess(solver, curr_guess, curr_row)
+                display_options(solver)
+                curr_row += 1
+        else:
+            window.Element("guess").update(selected)
+            window.Element("guess").set_focus()
     elif event == "Reset":
         window.close()
         window = create_window()
